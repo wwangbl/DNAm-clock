@@ -1,0 +1,37 @@
+
+
+```{r}
+load("model.RData")
+load("cpgs.RData")
+load("sampleData.RData")
+load("lambda.RData")
+load("antitrafo.RData")
+```
+
+```{r}
+library(glmnet)
+library(dplyr)
+library(tidyr)
+library(knitr)
+```
+
+```{r}
+predict_age <- function(data){
+  data <- inner_join(data, cpgs, by="ProbeID")
+  data <- data[,-1]
+  data <- data %>% mutate_if(is.numeric, ~replace_na(.,mean(., na.rm = TRUE)))
+  data <- as.data.frame(t(data))
+  DNAm.age <- anti.trafo(predict(Elastic.training, as.matrix(data), type="response", s=lambda.training))
+  return(DNAm.age)
+}
+```
+
+
+```{r}
+predict_age(sampleData)
+```
+
+
+
+
+
